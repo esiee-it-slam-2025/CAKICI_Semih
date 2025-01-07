@@ -102,3 +102,192 @@ body {
   background: #e0e0e0;
   color: #888;
 }
+
+/* Styles pour la modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+  align-content: center;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  margin: 5% auto;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Titre de la modal */
+#modalTitle {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* Description */
+#modalDescription {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Options de tickets */
+.ticket-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ticket-options label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+}
+
+.ticket-options select {
+  margin-left: 20px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 80px;
+}
+
+.ticket-options label:hover {
+  background-color: #f8f8f8;
+  border-color: #ccc;
+}
+
+.ticket-options input[type="checkbox"] {
+  margin-right: 1rem;
+  width: 18px;
+  height: 18px;
+  accent-color: #2c3d50;
+}
+
+/* Bouton d'achat */
+#buyTickets {
+  width: 100%;
+  padding: 1rem;
+  background-color: #2c3d50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#buyTickets:hover {
+  background-color: #1976d2;
+}
+
+/* Bouton de fermeture */
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: #333;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Media queries pour la responsivité */
+@media (max-width: 600px) {
+  .modal-content {
+    margin: 10% auto;
+    padding-top: 100px;
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  #modalTitle {
+    font-size: 1.25rem;
+  }
+
+  .ticket-options label {
+    padding: 0.75rem;
+  }
+}
+
+.team img.flag {
+  width: 40px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+/* Lien "Mes Matchs" dans l'en-tête */
+.mes-matchs-link {
+  margin-left: 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: #1976d2;
+  padding: 5px 10px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.mes-matchs-link:hover {
+  background: #145ca1;
+}
+
+/* Carte de billet */
+.ticket-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

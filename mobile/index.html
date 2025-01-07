@@ -9,6 +9,7 @@
   <body>
     <div class="header">
       <img src="assets/JO Icons.svg" alt="logoJO" />
+      <a href="mesMatchs.html" class="mes-matchs-link">Mes Matchs</a>
       <h1>Événements Sportifs</h1>
     </div>
 
@@ -17,5 +18,49 @@
     </div>
 
     <script src="script.js"></script>
+
+    <div id="ticketModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle">Acheter des billets</h2>
+        <p id="modalDescription">Choisissez votre catégorie de billets :</p>
+        <div class="ticket-options">
+          <label>
+            Silver - 100€
+            <select data-category="Silver" data-price="100">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+          <label>
+            Gold - 200€
+            <select data-category="Gold" data-price="200">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+          <label>
+            Platinium - 300€
+            <select data-category="Platinium" data-price="300">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+        </div>
+        <button id="buyTickets">Acheter les billets</button>
+      </div>
+    </div>
   </body>
 </html>
