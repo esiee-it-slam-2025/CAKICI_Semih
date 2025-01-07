@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from ..models.event import Event
 from ..models.stadium import Stadium
 from ..models.team import Team
+from django.utils import timezone
 
 
 def stadiums(request):
@@ -41,4 +42,32 @@ def events(request):
                 "name": event.winner.name if event.winner else None,
             },
         })
+    return JsonResponse({"events": data}, safe=False)
+
+
+def get_events(request):
+    events = Event.objects.select_related('team_home', 'team_away', 'stadium').order_by('start')
+
+    data = [{
+        'id': event.id,
+        'start': event.start.isoformat(),
+        'team_home': {
+            'id': event.team_home.id, 
+            'name': event.team_home.name
+        } if event.team_home else None,
+        'team_away': {
+            'id': event.team_away.id, 
+            'name': event.team_away.name
+        } if event.team_away else None,
+        'stadium': {
+            'id': event.stadium.id, 
+            'name': event.stadium.name
+        } if event.stadium else None,
+        'score': event.score,
+        'winner': {
+            'id': event.winner.id,
+            'name': event.winner.name
+        } if event.winner else None
+    } for event in events]
+
     return JsonResponse({"events": data}, safe=False)
