@@ -1,0 +1,86 @@
+{% extends "_base.html" %}
+
+{% block title %}Liste des événements{% endblock %}
+
+{% block content %}
+    <h2>Liste des événements</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Événements déjà définis -->
+        <h3>Phase de groupes</h3>
+        <ul>
+            {% for event in defined_events %}
+                <li>
+                    {{ event.start }} : 
+                    <select name="team_home_{{ event.id }}">
+                        <option value="" {% if not event.team_home %}selected{% endif %}>?</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if event.team_home and team.id == event.team_home.id %}selected{% endif %}>
+                                {{ team.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    vs
+                    <select name="team_away_{{ event.id }}">
+                        <option value="" {% if not event.team_away %}selected{% endif %}>?</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if event.team_away and team.id == event.team_away.id %}selected{% endif %}>
+                                {{ team.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    au
+                    <select name="stadium_{{ event.id }}">
+                        <option value="" {% if not event.stadium %}selected{% endif %}>?</option>
+                        {% for stadium in stadiums %}
+                            <option value="{{ stadium.id }}" {% if event.stadium and stadium.id == event.stadium.id %}selected{% endif %}>
+                                {{ stadium.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Événements non définis par phases -->
+        {% for phase, events in phase_events.items %}
+            <h3>{{ phase }}</h3>
+            <ul>
+                {% for event in events %}
+                    <li>
+                        {{ event.start }} : 
+                        <select name="team_home_{{ event.id }}">
+                            <option value="" {% if not event.team_home %}selected{% endif %}>?</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}" {% if event.team_home and team.id == event.team_home.id %}selected{% endif %}>
+                                    {{ team.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        vs
+                        <select name="team_away_{{ event.id }}">
+                            <option value="" {% if not event.team_away %}selected{% endif %}>?</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}" {% if event.team_away and team.id == event.team_away.id %}selected{% endif %}>
+                                    {{ team.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        au
+                        <select name="stadium_{{ event.id }}">
+                            <option value="" {% if not event.stadium %}selected{% endif %}>?</option>
+                            {% for stadium in stadiums %}
+                                <option value="{{ stadium.id }}" {% if event.stadium and stadium.id == event.stadium.id %}selected{% endif %}>
+                                    {{ stadium.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        
+        <button type="submit">Enregistrer les modifications</button>
+    </form>
+{% endblock %}

@@ -1,7 +1,19 @@
-from django.urls import path
-from .views import stadiums
+from django.shortcuts import redirect
+from django.urls import include, path
 
-# Un exemple de endpoint qui renverait les stades... Si la vue était faite :)
-urlpatterns = (
-    path("api/stadiums", stadiums),
-)
+from django.urls import path
+from django.contrib.auth.views import LoginView, LogoutView
+
+from django.contrib import admin 
+from .views.eventsView import eventsView 
+from .views.api import stadiums 
+
+urlpatterns = [
+    
+    path('', lambda request: redirect('login')), 
+    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', LogoutView.as_view(next_page='/login/'), name='logout'),
+    path('events/', eventsView, name='events'),
+    path("admin/", admin.site.urls), 
+]
+
