@@ -105,18 +105,18 @@ Afin que vos URLs soient accessibles plus tard par l'application web mobile et l
 2. Ajouter la ligne suivante au sein de la variable `INSTALLED_APPS` du fichier de paramètres `base.py` en faisant en sorte que ce soit la **première ligne** du tableau
 
 ```python
-    INSTALLED_APPS = [
-        'corsheaders',
-        ...
-    ]
+		INSTALLED_APPS = [
+				'corsheaders',
+				...
+		]
 ```
 
 3. Ajouter la ligne suivante au sein de la variable `MIDDLEWARE` du fichier de paramètres `base.py` en faisant en sorte que ce soit la **première ligne** du tableau
 
 ```python
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    ...,
+		'corsheaders.middleware.CorsMiddleware',
+		...,
 ]
 ```
 
@@ -126,10 +126,10 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:5500", # Adresse URL local sur le port liveserver
+		"http://127.0.0.1:5500", # Adresse URL local sur le port liveserver
 ]
 ALLOWED_HOSTS = [
-    '127.0.0.1',  # Pour les tests en local
+		'127.0.0.1',  # Pour les tests en local
 ]
 ```
 
@@ -178,7 +178,6 @@ fetch(apiPath, {
 
 ---
 
-
 ### Débogage caméra téléphone
 
 Cet exercice utilisant l'accès à la caméra depuis Javascript, nous allons nous heurter à quelques problèmes suite à la sécurité imposée par les navigateurs web.
@@ -188,7 +187,12 @@ Lorsque vous voudriez tester cette page web sur votre ordinateur, vous pourrez o
 Pour tester votre page sur votre téléphone, il faudra soit la télécharger et l'ouvrir à la main, soit l'ouvrir depuis un site web servi strictement en **HTTPS** afin d'avoir l'accès à la caméra de fonctionnel. Aussi, vous ne pourrez pas accéder au serveur web de test qui tourne sur votre ordinateur depuis votre téléphone (en tapant l'IP locale de l'ordinateur) car dans ce cas le navigateur refusera d'afficher la caméra sur un serveur web n'utilisant pas **HTTPS**.
 
 ## Lancer l'application
+
 1. Installez django-cors-headers via la commande `pip install django-cors-headers`
 2. Créez une base de données et modifiez le fichier `base.py` si besoin pour la connecter
-3. Importer les tables et les données fourni par le CIO via le fichier data_jo.sql
-4. Lancez l'application avec `py manage.py runserver`
+3. Générez les tables de la BDD via l'ORM de Django avec les commandes suivantes
+   1. `py manage.py makemigrations`
+   2. `py manage.py makemigrations mainapp`
+   3. `py manage.py migrate`
+4. Ajoutez les données dans vos table en important le fichier SQL [data_jo.sql](data_jo.sql) dans votre BDD
+5. Lancez l'application avec `py manage.py runserver`
