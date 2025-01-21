@@ -13,12 +13,13 @@
 }
 
 body {
-  background: #f5f5f5;
+  background: linear-gradient(to bottom right, #e3f5ff, #0c5094);
   font-family: "Paris2024", sans-serif;
 }
 
 .header {
   background: #2c3e50;
+  background-image: url("assets/fondHeader9.jpg");
   color: white;
   padding: 1rem;
   text-align: center;
@@ -268,26 +269,40 @@ body {
 
 /* Lien "Mes Matchs" dans l'en-tête */
 .mes-matchs-link {
-  margin-left: 20px;
-  color: white;
+  color: #133277;
   text-decoration: none;
   font-size: 1.2rem;
   font-weight: bold;
-  background: #1976d2;
+  background: white;
   padding: 5px 10px;
   border-radius: 8px;
   transition: background 0.2s ease;
+  padding-inline: 40px;
 }
 
 .mes-matchs-link:hover {
   background: #145ca1;
 }
 
-/* Carte de billet */
+.block-mes-matchs {
+  justify-self: center;
+  padding-top: 25px;
+}
+
+h1 {
+  font-size: 25px;
+}
+
 .ticket-card {
-  background: white;
-  border-radius: 8px;
+  border: 1px solid #ddd;
   padding: 1rem;
   margin: 1rem 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-card p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
 }
