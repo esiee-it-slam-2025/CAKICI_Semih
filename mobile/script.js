@@ -130,7 +130,6 @@ function openModal(event) {
   modal.style.display = "block";
 }
 
-// Fermeture de la modal au clic sur la croix
 document.addEventListener("DOMContentLoaded", () => {
   const closeButton = document.querySelector(".close");
   const modal = document.getElementById("ticketModal");
@@ -146,46 +145,76 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-document.getElementById("buyTickets").addEventListener("click", async () => {
-  const selectedTickets = [];
-  document.querySelectorAll(".ticket-options select").forEach((select) => {
-    const quantity = parseInt(select.value, 10);
-    if (quantity > 0) {
-      selectedTickets.push({
-        event_id: currentEventId, // ID de l'événement en cours
-        category: select.dataset.category,
-        quantity: quantity,
-      });
-    }
-  });
+async function getCSRFToken() {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/csrf-token/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  } catch (error) {
+    console.error("Error fetching CSRF token:", error);
+    return null;
+  }
+}
 
-  if (selectedTickets.length === 0) {
-    alert("Veuillez sélectionner au moins un billet.");
+// Modify your buyTickets function to first get the CSRF token
+async function buyTickets(eventId) {
+  const csrftoken = await getCSRFToken();
+  if (!csrftoken) {
+    alert("Unable to get CSRF token. Please try again.");
     return;
   }
 
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/tickets/", {
+    const response = await fetch("http://127.0.0.1:8000/ticket/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // Si tu utilises un token d'authentification
+        "X-CSRFToken": csrftoken,
       },
-      body: JSON.stringify({ tickets: selectedTickets }),
+      credentials: "include",
+      body: JSON.stringify({
+        event: eventId,
+        tickets: selectedTickets,
+      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      alert(`Erreur : ${errorData.error}`);
-      return;
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    const data = await response.json();
     alert("Vos billets ont été achetés avec succès !");
     document.getElementById("ticketModal").style.display = "none";
   } catch (error) {
-    console.error("Erreur lors de l'achat des billets :", error);
+    console.error("Erreur lors de l'achat des billets:", error);
     alert("Une erreur est survenue lors de l'achat des billets.");
   }
-});
+}
+
+function openModal(event) {
+  const modal = document.getElementById("ticketModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalDescription = document.getElementById("modalDescription");
+  const buyButton = document.getElementById("buyTickets");
+
+  modalTitle.textContent = `Acheter des billets pour ${
+    event.team_home ? event.team_home.name : "À déterminer"
+  } VS ${event.team_away ? event.team_away.name : "À déterminer"}`;
+
+  modalDescription.textContent = `Match prévu le ${new Date(
+    event.start
+  ).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  })} au ${event.stadium ? event.stadium.name : "Stade à confirmer"}`;
+
+  buyButton.onclick = () => buyTickets(event.id);
+  modal.style.display = "block";
+}
 
 loadEvents();

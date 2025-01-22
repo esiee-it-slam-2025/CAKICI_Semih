@@ -1,10 +1,12 @@
+import json
 from django.http import JsonResponse
 
 from ..models.event import Event
 from ..models.stadium import Stadium
 from ..models.team import Team
 from django.utils import timezone
-
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
 
 def stadiums(request):
     stadiums_list = Stadium.objects.all().values("id", "name", "location")
@@ -71,3 +73,21 @@ def get_events(request):
     } for event in events]
 
     return JsonResponse({"events": data}, safe=False)
+
+
+
+
+
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': get_token(request)})
+
+@csrf_exempt  # Since this endpoint will receive POST requests
+def buy_ticket(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            # Process ticket purchase logic here
+            return JsonResponse({"message": "Ticket purchased successfully!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
