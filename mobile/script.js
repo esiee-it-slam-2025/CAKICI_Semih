@@ -87,10 +87,14 @@ function openModal(event) {
   const modal = document.getElementById("ticketModal");
   const modalTitle = document.getElementById("modalTitle");
   const modalDescription = document.getElementById("modalDescription");
+  const buyButton = document.getElementById("buyTickets");
+
+  modal.dataset.eventData = JSON.stringify(event);
 
   modalTitle.textContent = `Acheter des billets pour ${
     event.team_home ? event.team_home.name : "À déterminer"
   } VS ${event.team_away ? event.team_away.name : "À déterminer"}`;
+
   modalDescription.textContent = `Match prévu le ${new Date(
     event.start
   ).toLocaleDateString("fr-FR", {
@@ -99,35 +103,150 @@ function openModal(event) {
     month: "long",
     hour: "2-digit",
     minute: "2-digit",
-  })} au ${
-    event.stadium ? event.stadium.name : "Stade à confirmer"
-  }. Choisissez vos catégories de billets.`;
+  })} au ${event.stadium ? event.stadium.name : "Stade à confirmer"}`;
 
+  buyButton.onclick = () => processTicketPurchase(event);
   modal.style.display = "block";
 }
 
-// Fonction pour ouvrir la modal
-function openModal(event) {
-  const modal = document.getElementById("ticketModal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDescription = document.getElementById("modalDescription");
+// script.js
+const API_BASE_URL = "http://127.0.0.1:8000/api"; // Vérifie que Django tourne bien sur ce port
 
-  modalTitle.textContent = `Acheter des billets pour ${
-    event.team_home ? event.team_home.name : "À déterminer"
-  } VS ${event.team_away ? event.team_away.name : "À déterminer"}`;
-  modalDescription.textContent = `Match prévu le ${new Date(
-    event.start
-  ).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  })} au ${
-    event.stadium ? event.stadium.name : "Stade à confirmer"
-  }. Choisissez vos catégories de billets.`;
+async function processTicketPurchase(event) {
+  const selects = document.querySelectorAll(".ticket-options select");
+  const tickets = [];
 
-  modal.style.display = "block";
+  selects.forEach((select) => {
+    const quantity = parseInt(select.value);
+    if (quantity > 0) {
+      tickets.push({
+        category: select.dataset.category,
+        quantity: quantity,
+      });
+    }
+  });
+
+  if (tickets.length === 0) {
+    alert("Veuillez sélectionner au moins un billet.");
+    return;
+  }
+
+  try {
+    const csrftoken = await getCSRFToken();
+    const response = await fetch(`${API_BASE_URL}/tickets/buy/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        event_id: event.id,
+        tickets: tickets,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de l'achat des billets");
+    }
+
+    const data = await response.json();
+    alert("Vos billets ont été achetés avec succès !");
+    window.location.href = "mesMatchs.html";
+  } catch (error) {
+    console.error("Erreur:", error);
+    window.location.href = "register.html";
+    alert("Vous devez créer un compte pour acheter un billet.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const ticketsContainer = document.getElementById("ticketsContainer");
+
+  try {
+    const response = await fetch("/api/tickets/user/");
+    if (!response.ok) {
+      throw new Error("Erreur lors de la récupération des billets");
+    }
+
+    const data = await response.json();
+
+    if (data.events.length === 0) {
+      ticketsContainer.innerHTML = `
+        <div class="no-tickets">
+          <p>Aucun billet acheté pour le moment.</p>
+          <a href="index.html" class="back-button">Voir les événements disponibles</a>
+        </div>`;
+      return;
+    }
+
+    data.events.forEach((eventData) => {
+      const event = eventData.event;
+      const eventDate = new Date(event.start);
+
+      const matchCard = document.createElement("div");
+      matchCard.className = "match-card";
+
+      matchCard.innerHTML = `
+        <div class="match-header">
+          <h2>${event.team_home?.name || "À déterminer"} VS ${
+        event.team_away?.name || "À déterminer"
+      }</h2>
+          <p class="match-date">${eventDate.toLocaleDateString("fr-FR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })} à ${eventDate.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}</p>
+          <p class="match-location">${
+            event.stadium?.name || "Stade à confirmer"
+          }</p>
+        </div>
+        <div class="tickets-list">
+          ${eventData.tickets
+            .map(
+              (ticket) => `
+            <div class="ticket">
+              <div class="ticket-info">
+                <p class="ticket-category">Catégorie: ${ticket.category}</p>
+                <p class="ticket-price">Prix: ${ticket.price}€</p>
+                <p class="ticket-id">ID: ${ticket.id}</p>
+              </div>
+              <div class="ticket-qr">
+                <img src="${ticket.qr_code_url}" alt="QR Code" class="qr-code">
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      `;
+
+      ticketsContainer.appendChild(matchCard);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+    ticketsContainer.innerHTML = `
+      <div class="error-message">
+        Une erreur est survenue lors du chargement des billets.
+      </div>`;
+  }
+});
+
+async function getCSRFToken() {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/csrf-token/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.csrfToken;
+  } catch (error) {
+    console.error("Error fetching CSRF token:", error);
+    return null;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -145,20 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-async function getCSRFToken() {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/api/csrf-token/", {
-      credentials: "include",
-    });
-    const data = await response.json();
-    return data.csrfToken;
-  } catch (error) {
-    console.error("Error fetching CSRF token:", error);
-    return null;
-  }
-}
-
-// Modify your buyTickets function to first get the CSRF token
 async function buyTickets(eventId) {
   const csrftoken = await getCSRFToken();
   if (!csrftoken) {
@@ -193,28 +298,70 @@ async function buyTickets(eventId) {
   }
 }
 
-function openModal(event) {
-  const modal = document.getElementById("ticketModal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDescription = document.getElementById("modalDescription");
-  const buyButton = document.getElementById("buyTickets");
+// gstion de compte
+document.addEventListener("DOMContentLoaded", async () => {
+  const authButton = document.getElementById("authButton");
+  const usernameDisplay = document.getElementById("usernameDisplay");
 
-  modalTitle.textContent = `Acheter des billets pour ${
-    event.team_home ? event.team_home.name : "À déterminer"
-  } VS ${event.team_away ? event.team_away.name : "À déterminer"}`;
+  async function checkAuthStatus() {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/user/", {
+        credentials: "include",
+      });
 
-  modalDescription.textContent = `Match prévu le ${new Date(
-    event.start
-  ).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  })} au ${event.stadium ? event.stadium.name : "Stade à confirmer"}`;
+      console.log("Response status:", response.status);
 
-  buyButton.onclick = () => buyTickets(event.id);
-  modal.style.display = "block";
-}
+      if (response.ok) {
+        const userData = await response.json();
+
+        authButton.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i>';
+        authText.textContent = "Se déconnecter";
+        usernameDisplay.textContent = `${userData.username}`;
+        authButton.setAttribute("data-logged-in", "true");
+      } else {
+        authButton.innerHTML = '<i class="fa-solid fa-user-group"></i>';
+        authText.textContent = "Se connecter";
+        usernameDisplay.textContent = "";
+        authButton.setAttribute("data-logged-in", "false");
+      }
+    } catch (error) {
+      console.error("Erreur de vérification de l'authentification:", error);
+      authButton.innerHTML = '<i class="fa-solid fa-user-group"></i>';
+      authText.textContent = "Se connecter";
+      usernameDisplay.textContent = "";
+      authButton.setAttribute("data-logged-in", "false");
+    }
+  }
+
+  await checkAuthStatus();
+
+  authButton.addEventListener("click", async () => {
+    const isLoggedIn = authButton.getAttribute("data-logged-in") === "true";
+
+    if (isLoggedIn) {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/logout/", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          authButton.innerHTML = '<i class="fa-solid fa-user-group"></i>';
+          authText.textContent = "Se connecter";
+          usernameDisplay.textContent = "";
+          authButton.setAttribute("data-logged-in", "false");
+          window.location.reload();
+        } else {
+          alert("Erreur lors de la déconnexion");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion :", error);
+        alert("Une erreur est survenue lors de la déconnexion.");
+      }
+    } else {
+      window.location.href = "register.html";
+    }
+  });
+});
 
 loadEvents();
