@@ -5,7 +5,7 @@ from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib import admin 
 from .views.eventsView import eventsView 
-from .views.api import buy_tickets, get_csrf_token, get_events, get_user_info, get_user_tickets, login_view, logout_view, register_user, signup_view, stadiums
+from .views.api import buy_tickets, get_csrf_token, get_events, get_ticket_details, get_user_info, get_user_tickets, login_view, logout_view, register_user, signup_view, stadiums
 
 urlpatterns = [
     
@@ -24,6 +24,8 @@ urlpatterns = [
     path('api/logout/', logout_view, name='logout'),
     path('api/login/', login_view, name='login'),
     path('api/user/', get_user_info, name='get_user_info'),
+    path('api/tickets/<uuid:ticket_id>/', get_ticket_details, name='get_ticket_details'),
+
 
     path("admin/", admin.site.urls), 
 ]

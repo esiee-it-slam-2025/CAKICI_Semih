@@ -4,6 +4,8 @@ async function loadEvents() {
     const data = await response.json();
 
     const eventsContainer = document.getElementById("eventsContainer");
+    if (!eventsContainer) return;
+
     eventsContainer.innerHTML = "";
 
     if (!data.events || data.events.length === 0) {
@@ -110,28 +112,37 @@ function openModal(event) {
 }
 
 // script.js
-const API_BASE_URL = "http://127.0.0.1:8000/api"; // Vérifie que Django tourne bien sur ce port
+const API_BASE_URL = "http://127.0.0.1:8000/api";
 
 async function processTicketPurchase(event) {
-  const selects = document.querySelectorAll(".ticket-options select");
-  const tickets = [];
-
-  selects.forEach((select) => {
-    const quantity = parseInt(select.value);
-    if (quantity > 0) {
-      tickets.push({
-        category: select.dataset.category,
-        quantity: quantity,
-      });
-    }
-  });
-
-  if (tickets.length === 0) {
-    alert("Veuillez sélectionner au moins un billet.");
-    return;
-  }
-
   try {
+    const userResponse = await fetch(`${API_BASE_URL}/user/`, {
+      credentials: "include",
+    });
+
+    if (!userResponse.ok) {
+      window.location.href = "register.html";
+      return;
+    }
+
+    const selects = document.querySelectorAll(".ticket-options select");
+    const tickets = [];
+
+    selects.forEach((select) => {
+      const quantity = parseInt(select.value);
+      if (quantity > 0) {
+        tickets.push({
+          category: select.dataset.category,
+          quantity: quantity,
+        });
+      }
+    });
+
+    if (tickets.length === 0) {
+      alert("Veuillez sélectionner au moins un billet.");
+      return;
+    }
+
     const csrftoken = await getCSRFToken();
     const response = await fetch(`${API_BASE_URL}/tickets/buy/`, {
       method: "POST",
@@ -155,8 +166,7 @@ async function processTicketPurchase(event) {
     window.location.href = "mesMatchs.html";
   } catch (error) {
     console.error("Erreur:", error);
-    window.location.href = "register.html";
-    alert("Vous devez créer un compte pour acheter un billet.");
+    alert("Une erreur est survenue lors de l'achat des billets.");
   }
 }
 
@@ -164,7 +174,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const ticketsContainer = document.getElementById("ticketsContainer");
 
   try {
-    const response = await fetch("/api/tickets/user/");
+    const response = await fetch(`${API_BASE_URL}/tickets/user/`, {
+      credentials: "include",
+    });
     if (!response.ok) {
       throw new Error("Erreur lors de la récupération des billets");
     }
@@ -363,5 +375,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
-loadEvents();

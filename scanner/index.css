@@ -1,0 +1,131 @@
+:root {
+  --primary-color: #1a73e8;
+  --success-color: #34a853;
+  --error-color: #ea4335;
+  --background-color: #f8f9fa;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  color: var(--primary-color);
+  text-align: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin: 0;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#scanner-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 20px;
+}
+
+#scanner-video {
+  width: 100%;
+  border-radius: 8px;
+  background-color: #000;
+}
+
+#file-selector {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+label[for="file-selector"] {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 20px 0;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+label[for="file-selector"]:hover {
+  background-color: #1557b0;
+}
+
+.buttonCam {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 20px 0;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+#result {
+  width: 100%;
+
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.valid {
+  background-color: #e6f4ea;
+  border: 1px solid var(--success-color);
+}
+
+.valid h2 {
+  color: var(--success-color);
+}
+
+.invalid {
+  background-color: #fce8e6;
+  border: 1px solid var(--error-color);
+}
+
+.invalid h2 {
+  color: var(--error-color);
+}
+
+#result p {
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+#result h2 {
+  margin-top: 0;
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+  #scanner-container {
+    margin: 10px;
+    width: auto;
+  }
+
+  #result {
+    margin: 10px;
+    width: 80%;
+  }
+}

@@ -25,6 +25,8 @@ def eventsView(request):
                         team_home_id = request.POST.get(f'team_home_{event_id}')
                         team_away_id = request.POST.get(f'team_away_{event_id}')
                         stadium_id = request.POST.get(f'stadium_{event_id}')
+                        new_date = request.POST.get(f'date_{event_id}')
+
                         
                         if team_home_id and team_home_id != '':
                             event.team_home_id = team_home_id
@@ -34,6 +36,9 @@ def eventsView(request):
                         
                         if stadium_id and stadium_id != '':
                             event.stadium_id = stadium_id
+
+                        if new_date and new_date != '':
+                            event.start = new_date    
                         
                         event.save()
                     

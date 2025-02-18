@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               <div class="ticket-info">
                 <p class="ticket-category">Catégorie: ${ticket.category}</p>
                 <p class="ticket-price">Prix: ${ticket.price}€</p>
-                <p class="ticket-id">ID: ${ticket.id}</p>
+                
               </div>
               <canvas id="qr-${ticket.id}" class="qr-code clickable-qr"></canvas>
             </div>
