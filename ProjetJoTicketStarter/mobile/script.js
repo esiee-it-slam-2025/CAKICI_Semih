@@ -1,6 +1,8 @@
+const API_BASE_URL = "http://127.0.0.1:8000/api";
+
 async function loadEvents() {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/events/");
+    const response = await fetch(`${API_BASE_URL}/events/`);
     const data = await response.json();
 
     const eventsContainer = document.getElementById("eventsContainer");
@@ -111,20 +113,21 @@ function openModal(event) {
   modal.style.display = "block";
 }
 
-// script.js
-const API_BASE_URL = "http://127.0.0.1:8000/api";
-
 async function processTicketPurchase(event) {
   try {
-    const userResponse = await fetch(`${API_BASE_URL}/user/`, {
-      credentials: "include",
-    });
+    // Vérifier si l'utilisateur est connecté directement depuis l'état de l'interface
+    const isLoggedIn =
+      document.getElementById("authButton").getAttribute("data-logged-in") ===
+      "true";
 
-    if (!userResponse.ok) {
-      window.location.href = "register.html";
+    if (!isLoggedIn) {
+      // L'utilisateur n'est pas connecté, on ferme la modal et on redirige
+      document.getElementById("ticketModal").style.display = "none";
+      window.location.replace("register.html");
       return;
     }
 
+    // Si on arrive ici, l'utilisateur est connecté selon le bouton d'authentification
     const selects = document.querySelectorAll(".ticket-options select");
     const tickets = [];
 
@@ -158,7 +161,13 @@ async function processTicketPurchase(event) {
     });
 
     if (!response.ok) {
-      throw new Error("Erreur lors de l'achat des billets");
+      // Si c'est un problème d'authentification (401, 403)
+      if (response.status === 401 || response.status === 403) {
+        document.getElementById("ticketModal").style.display = "none";
+        window.location.replace("register.html");
+        return;
+      }
+      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -166,13 +175,32 @@ async function processTicketPurchase(event) {
     window.location.href = "mesMatchs.html";
   } catch (error) {
     console.error("Erreur:", error);
-    alert("Une erreur est survenue lors de l'achat des billets.");
+
+    // Si l'erreur contient une indication que l'utilisateur n'est pas connecté
+    if (
+      error.message &&
+      (error.message.includes("401") ||
+        error.message.includes("403") ||
+        error.message.includes("auth") ||
+        error.message.includes("connect"))
+    ) {
+      document.getElementById("ticketModal").style.display = "none";
+      window.location.replace("register.html");
+    } else {
+      alert("Une erreur est survenue lors de l'achat des billets.");
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const ticketsContainer = document.getElementById("ticketsContainer");
 
+  if (!ticketsContainer) {
+    console.log(
+      "Page sans conteneur de tickets, chargement des tickets ignoré."
+    );
+    return;
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/tickets/user/`, {
       credentials: "include",
@@ -250,7 +278,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function getCSRFToken() {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/csrf-token/", {
+    const response = await fetch(`${API_BASE_URL}/csrf-token/`, {
       credentials: "include",
     });
     const data = await response.json();
@@ -324,20 +352,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("Response status:", response.status);
 
       if (response.ok) {
-        const userData = await response.json();
-
-        authButton.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i>';
-        authText.textContent = "Se déconnecter";
-        usernameDisplay.textContent = `${userData.username}`;
-        authButton.setAttribute("data-logged-in", "true");
+        try {
+          const userData = await response.json();
+          authButton.innerHTML =
+            '<i class="fa-solid fa-right-from-bracket"></i>';
+          authText.textContent = "Se déconnecter";
+          usernameDisplay.textContent = `${userData.username}`;
+          authButton.setAttribute("data-logged-in", "true");
+        } catch (e) {
+          console.warn("Réponse reçue mais pas au format JSON");
+          setUnauthenticatedUI();
+        }
       } else {
-        authButton.innerHTML = '<i class="fa-solid fa-user-group"></i>';
-        authText.textContent = "Se connecter";
-        usernameDisplay.textContent = "";
-        authButton.setAttribute("data-logged-in", "false");
+        setUnauthenticatedUI();
       }
     } catch (error) {
       console.error("Erreur de vérification de l'authentification:", error);
+      setUnauthenticatedUI();
+    }
+
+    // Fonction auxiliaire pour définir l'interface utilisateur non authentifiée
+    function setUnauthenticatedUI() {
       authButton.innerHTML = '<i class="fa-solid fa-user-group"></i>';
       authText.textContent = "Se connecter";
       usernameDisplay.textContent = "";
@@ -352,7 +387,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (isLoggedIn) {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/logout/", {
+        const response = await fetch(`${API_BASE_URL}/logout/`, {
           method: "POST",
           credentials: "include",
         });

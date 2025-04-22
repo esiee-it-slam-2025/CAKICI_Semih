@@ -1,31 +1,43 @@
 from django.shortcuts import redirect
-from django.urls import include, path
+from django.urls import path
 
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib import admin 
+from django.contrib import admin
+
+from .views import api
+from .views.eventsView import eventsView
+from django.views.generic.base import RedirectView
+
 from .views.eventsView import eventsView 
-from .views.api import buy_tickets, get_csrf_token, get_events, get_ticket_details, get_user_info, get_user_tickets, login_view, logout_view, register_user, signup_view, stadiums
 
 urlpatterns = [
-    
-    path('', lambda request: redirect('login')), 
+    path("admin/", admin.site.urls), 
+    path('events/', eventsView, name='events'),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='/login/'), name='logout'),
+    
     path('ticket/', LogoutView.as_view(next_page='/ticket/'), name='ticket'),
-    path('events/', eventsView, name='events'),
-    path('api/events/', get_events, name='get_events'), 
-    path('api/events/', get_events, name='get_events'), 
-    path('api/signup_view/', signup_view, name='signup_view'),
-    path('api/csrf-token/', get_csrf_token, name='get_csrf_token'),  
-    path('api/tickets/user/', get_user_tickets, name='get_user_tickets'), 
-    path('api/tickets/buy/', buy_tickets, name='buy_tickets'), 
-    path('api/register/', register_user, name='register_user'),
-    path('api/logout/', logout_view, name='logout'),
-    path('api/login/', login_view, name='login'),
-    path('api/user/', get_user_info, name='get_user_info'),
-    path('api/tickets/<uuid:ticket_id>/', get_ticket_details, name='get_ticket_details'),
+    
+    # Redirection pour login_required
+    path('accounts/login/', RedirectView.as_view(url='/login/'), name='redirect_login'),
+    
+    # API endpoints
+    path('api/events/', api.get_events, name='api_events'),
+    path('api/stadiums/', api.stadiums, name='api_stadiums'),
+    path('api/teams/', api.teams, name='api_teams'),
+    path('api/csrf-token/', api.get_csrf_token, name='get_csrf_token'),
+    path('api/tickets/buy/', api.buy_tickets, name='buy_tickets'),
+    path('api/tickets/user/', api.get_user_tickets, name='get_user_tickets'),
+    path('api/tickets/<uuid:ticket_id>/', api.get_ticket_details, name='get_ticket_details'),
+    path('api/login/', api.login_view, name='api_login'),
+    path('api/logout/', api.logout_view, name='api_logout'),
+    path('api/register/', api.register_user, name='api_register'),
+    path('api/user/', api.get_user_info, name='get_user_info'),
+    path('api/signup/', api.signup_view, name='signup_view'),
 
 
-    path("admin/", admin.site.urls), 
+    # Redirection de la page d'accueil vers events
+    # path('', lambda request: redirect('login')), 
+    path('', lambda request: redirect('events'), name='home'),
 ]
