@@ -11,11 +11,14 @@ from django.views.generic.base import RedirectView
 
 from .views.eventsView import eventsView 
 
+
+
 urlpatterns = [
     path("admin/", admin.site.urls), 
     path('events/', eventsView, name='events'),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', LogoutView.as_view(next_page='/login/'), name='logout'),
+    path('logout/', api.logout_view, name='logout'),
+
     
     path('ticket/', LogoutView.as_view(next_page='/ticket/'), name='ticket'),
     

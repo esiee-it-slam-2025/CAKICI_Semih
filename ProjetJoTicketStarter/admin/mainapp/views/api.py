@@ -289,7 +289,7 @@ def login_view(request):
 def logout_view(request):
     """Déconnexion de l'utilisateur"""
     logout(request)
-    return JsonResponse({"message": "Déconnexion réussie"}, status=200)
+    return redirect('login')
 
 @login_required
 def get_user_info(request):
